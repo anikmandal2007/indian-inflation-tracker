@@ -21,6 +21,26 @@ def load_data():
 
 df = load_data()
 
+with st.sidebar:
+    st.header("📌 About MacroIndia")
+    st.markdown(
+        "**MacroIndia** is an interactive Economics & Computer Science project "
+        "that tracks India's Consumer Price Index (CPI) dynamics, food price volatility, "
+        "and Reserve Bank of India (RBI) monetary policy transmission."
+    )
+    st.subheader("🎓 Key Economic Concepts")
+    st.markdown(
+        "- **Headline CPI:** Overall inflation across all household goods and services.\n"
+        "- **Food Inflation (CFPI):** Price changes in essential food items (highly seasonal).\n"
+        "- **Core Inflation:** Underlying long-term inflation excluding volatile food and fuel.\n"
+        "- **RBI Tolerance Band:** India's Monetary Policy Committee (MPC) targets **4.0% CPI** within a **2.0%–6.0%** band."
+    )
+    st.subheader("🛠️ Tech Stack & Data")
+    st.markdown(
+        "- **Tools:** Python, Pandas, Plotly, Streamlit\n"
+        "- **Sources:** [MoSPI](https://www.mospi.gov.in/themes/product/9-consumer-price-index-cpi) & [RBI DBIE](https://data.rbi.org.in/)"
+    )
+
 st.title("📈 MacroIndia: Indian CPI Inflation & Monetary Policy Tracker")
 st.markdown(
     "Tracking **All-India Consumer Price Index (CPI)** trends, **Food vs. Core Inflation**, "
@@ -38,7 +58,12 @@ col2.metric(f"Food Inflation ({int(latest['Year'])})", f"{latest['Food_Inflation
 col3.metric(f"Core Inflation ({int(latest['Year'])})", f"{latest['Core_Inflation_Percent']:.1f}%", f"{latest['Core_Inflation_Percent'] - prev['Core_Inflation_Percent']:+.1f}% YoY", delta_color="inverse")
 col4.metric(f"RBI Repo Rate ({int(latest['Year'])})", f"{latest['RBI_Repo_Rate_Percent']:.2f}%", f"{latest['RBI_Repo_Rate_Percent'] - prev['RBI_Repo_Rate_Percent']:+.2f}%")
 
-tab1, tab2, tab3 = st.tabs(["📊 CPI vs. RBI Tolerance Band", "🛒 Personal Inflation Calculator", "💰 Purchasing Power Calculator"])
+tab1, tab2, tab3, tab4 = st.tabs([
+    "📊 CPI vs. RBI Tolerance Band",
+    "🛒 Personal Inflation Calculator",
+    "💰 Purchasing Power Calculator",
+    "📖 About & Methodology",
+])
 
 with tab1:
     st.subheader("Headline, Food & Core CPI vs. RBI Target (4% ± 2%)")
@@ -91,6 +116,28 @@ with tab3:
         f"- ₹{base_amount:,.0f} kept in cash since {start_year} is worth **₹{base_amount / cumulative_factor:,.0f}** in real terms today."
     )
 
-with st.expander("📂 View Raw Macroeconomic Dataset"):
+with tab4:
+    st.subheader("📖 About This Project & Economic Methodology")
+    st.markdown(
+        """
+        ### 1. Why This Project Matters
+        While the **Headline Consumer Price Index (CPI)** measures the average price change of a standard national consumption basket, individual households experience inflation differently depending on how much of their income goes toward **food, housing, fuel, and education/healthcare**. Furthermore, understanding how the **Reserve Bank of India (RBI)** adjusts the **Repo Rate** whenever CPI breaches its **2%–6% tolerance band** is central to modern Indian macroeconomics.
+
+        ### 2. Macroeconomic Methodology
+        - **Flexible Inflation Targeting (FIT) Framework:** Since 2016, the RBI's Monetary Policy Committee (MPC) is mandated to maintain annual CPI inflation at **4.0%**, with an upper tolerance limit of **6.0%** and a lower limit of **2.0%**.
+        - **Personal Inflation Weighting Formula:**
+          $$\\text{Personal CPI} = \\frac{\\sum (\\text{Category Spend}_i \\times \\text{Category Inflation Rate}_i)}{\\text{Total Monthly Spend}}$$
+        - **Cumulative Purchasing Power Formula:** Compounds annual CPI rates from the chosen base year $t_0$ to $t_n$:
+          $$\\text{Equivalent Value} = \\text{Base Amount} \\times \\prod_{t=t_0}^{t_n} \\left(1 + \\frac{\\text{CPI}_t}{100}\\right)$$
+
+        ### 3. Data Sources & Tech Stack
+        - **Primary Macroeconomic Data:** [Ministry of Statistics and Programme Implementation (MoSPI)](https://www.mospi.gov.in/themes/product/9-consumer-price-index-cpi) and [RBI Database on Indian Economy (DBIE)](https://data.rbi.org.in/).
+        - **Built With:** Python, Pandas (data wrangling), Plotly (interactive financial visualization), and Streamlit (cloud deployment).
+        """
+    )
+
+with st.expander("📂 View & Download Raw Macroeconomic Dataset"):
     st.dataframe(df, use_container_width=True)
-  
+    csv_bytes = df.to_csv(index=False).encode("utf-8")
+    st.download_button(label="⬇️ Download Dataset as CSV", data=csv_bytes, file_name="india_inflation.csv", mime="text/csv")
+    
